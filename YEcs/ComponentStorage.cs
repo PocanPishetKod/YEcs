@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NoNameGame.Framework
+namespace YEcs
 {
     internal readonly struct ComponentRef<TComponent> where TComponent : struct
     {

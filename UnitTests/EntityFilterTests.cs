@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-
-namespace NoNameGame.Framework.UnitTests
+﻿namespace UnitTests
 {
     public struct TestPositionComponent
     {
@@ -27,7 +20,7 @@ namespace NoNameGame.Framework.UnitTests
             ref var entity = ref world.CreateEntity();
             ref var positionComponent = ref entity.CreateComponent<TestPositionComponent>();
             ref var inputComponent = ref entity.CreateComponent<TestInputComponent>();
-            
+
             var filter = world.GetEntityFilter(typeof(TestPositionComponent));
 
             ref var filteredEntity = ref filter[0];

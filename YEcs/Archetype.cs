@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace NoNameGame.Framework
+namespace YEcs
 {
     internal readonly struct ArchetypeHashValue : IEquatable<ArchetypeHashValue>
     {

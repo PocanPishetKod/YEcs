@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NoNameGame.Framework
+namespace YEcs
 {
     public class EntityFilter
     {

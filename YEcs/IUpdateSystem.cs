@@ -1,4 +1,4 @@
-﻿namespace NoNameGame.Framework
+﻿namespace YEcs
 {
     public interface IUpdateSystem
     {

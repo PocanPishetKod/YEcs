@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace NoNameGame.Framework
+namespace YEcs
 {
     internal class EntityStorage
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NoNameGame.Framework
+namespace YEcs
 {
     public struct Entity
     {
