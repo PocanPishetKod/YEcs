@@ -1,4 +1,6 @@
-﻿namespace UnitTests
+﻿using YEcs;
+
+namespace UnitTests
 {
     public struct TestPositionComponent
     {
