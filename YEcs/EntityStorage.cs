@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace YEcs
 {
@@ -9,8 +8,7 @@ namespace YEcs
         private const int DefaultArraySize = 10;
 
         private Entity[] _entities;
-        private int _entitiesCount;
-        private int _lastIndex;
+        private int _count;
 
         private int[] _removedEntitiesIndeces;
         private int _removedEntitiesCount;
@@ -18,13 +16,12 @@ namespace YEcs
         private readonly ComponentStoragesManager _componentStoragesManager;
         private readonly World _owner;
 
-        public int Count => _entitiesCount;
+        public int Count => _count;
 
         public EntityStorage(ComponentStoragesManager componentStoragesManager, World owner)
         {
             _entities = new Entity[DefaultArraySize];
-            _entitiesCount = 0;
-            _lastIndex = 0;
+            _count = 0;
             _removedEntitiesIndeces = new int[DefaultArraySize];
             _removedEntitiesCount = 0;
             _componentStoragesManager = componentStoragesManager;
@@ -65,12 +62,11 @@ namespace YEcs
                 return ref entity;
             }
 
-            if (_entitiesCount == _entities.Length)
+            if (_count == _entities.Length)
                 Array.Resize(ref _entities, _entities.Length + ExtensionValue);
 
-            _entities[_lastIndex] = new Entity(_lastIndex, _componentStoragesManager, _owner);
-            _entitiesCount++;
-            return ref _entities[_lastIndex++];
+            _entities[_count] = new Entity(_count, _componentStoragesManager, _owner);
+            return ref _entities[_count++];
         }
 
         public void RemoveEntity(ref Entity entity)
