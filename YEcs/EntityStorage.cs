@@ -85,7 +85,6 @@ namespace YEcs
                 Array.Resize(ref _removedEntitiesIndeces, _removedEntitiesIndeces.Length + ExtensionValue);
 
             _removedEntitiesIndeces[_removedEntitiesCount++] = entity.Index;
-            _entitiesCount--;
 
             entity.Clear();
             entity.IsRemoved = true;

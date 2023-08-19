@@ -8,7 +8,7 @@ namespace YEcs
 {
     internal readonly struct ComponentTypeIdsKey
     {
-        public readonly int[] ComponentTypeIds;
+        private readonly int[] ComponentTypeIds;
 
         public ComponentTypeIdsKey(int[] componentTypeIds)
         {
