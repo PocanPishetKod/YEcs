@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace YEcs
+﻿namespace YEcs
 {
     internal readonly struct ComponentRef<TComponent> where TComponent : struct
     {
