@@ -59,15 +59,16 @@ namespace YEcs
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsCompatible(int[] componentTypeIds, in Entity entity)
+        private void FillFilter(EntityFilter filter)
         {
-            for (int j = 0; j < componentTypeIds.Length; j++)
+            for (int i = 0; i < _entityStorage.Count; i++)
             {
-                if (!entity.HasComponent(componentTypeIds[j]))
-                    return false;
-            }
+                ref var entity = ref _entityStorage[i];
+                if (filter.IsCompatible(entity))
+                    continue;
 
-            return true;
+                filter.AddEntity(entity.Index);
+            }
         }
 
         public EntityFilter GetFilter(params Type[] componentTypes)
@@ -79,40 +80,10 @@ namespace YEcs
                 filter = new EntityFilter(Array.AsReadOnly(componentTypeIds), _entityStorage);
                 _entityFiltersMap.Add(key, filter);
 
-                for (int i = 0; i < _entityStorage.Count; i++)
-                {
-                    ref var entity = ref _entityStorage[i];
-                    if (!IsCompatible(componentTypeIds, entity))
-                        continue;
-
-                    filter.AddEntity(entity.Index);
-                }
+                FillFilter(filter);
             }
 
             return filter;
-        }
-
-        internal void OnComponentAdded(in Entity entity, int componentTypeId)
-        {
-
-        }
-
-        internal void OnComponentRemoved(in Entity entity, int componentTypeId)
-        {
-
-        }
-
-        internal void UpdateFilters(in Entity entity, int componentTypeId, bool isAdd)
-        {
-
-        }
-
-        internal void OnEntityRemoved(int index)
-        {
-            foreach (var filter in _entityFiltersMap.Values)
-            {
-                filter.RemoveEntity(index);
-            }
         }
     }
 }

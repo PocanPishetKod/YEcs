@@ -70,15 +70,5 @@ namespace YEcs
         {
             _entityStorage.RemoveEntity(ref entity);
         }
-
-        internal void UpdateFilters(in Entity entity, int componentTypeId, bool isAdd)
-        {
-            _entityFiltersManager.UpdateFilters(entity, componentTypeId, isAdd);
-        }
-
-        internal void OnEntityRemoved(int index)
-        {
-            _entityFiltersManager.OnEntityRemoved(index);
-        }
     }
 }

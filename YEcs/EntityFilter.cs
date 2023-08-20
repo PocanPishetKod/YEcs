@@ -23,15 +23,15 @@ namespace YEcs
             }
         }
 
-        public bool IsCompatable(in Entity entity)
+        public bool IsCompatible(in Entity entity)
         {
             foreach (var componentTypeId in _componentTypeIds)
             {
-                if (entity.HasComponent(componentTypeId))
-                    return true;
+                if (!entity.HasComponent(componentTypeId))
+                    return false;
             }
 
-            return false;
+            return true;
         }
 
         public void AddEntity(int index)

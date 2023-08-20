@@ -46,8 +46,6 @@ namespace YEcs
             var componentRef = _componentStoragesManager.CreateComponent<TComponent>();
             _componentIndeces.Add(componentRef.Storage.ComponentTypeId, componentRef.Index);
 
-            _owner.UpdateFilters(this, componentRef.Storage.ComponentTypeId, true);
-
             return ref componentRef.Storage[componentRef.Index];
         }
 
