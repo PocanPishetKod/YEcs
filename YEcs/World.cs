@@ -6,7 +6,7 @@
         private readonly List<IUpdateSystem> _updateSystems;
         private readonly ComponentStoragesManager _componentStoragesManager;
         private readonly EntityStorage _entityStorage;
-        private readonly EntityFiltersManager _entityFiltersManager;
+        private readonly Dictionary<ComponentTypeIdsKey, EntityFilter> _entityFiltersStorage;
 
         public int EntitiesCount => _entityStorage.Count;
 
@@ -16,7 +16,7 @@
             _updateSystems = new List<IUpdateSystem>();
             _componentStoragesManager = new ComponentStoragesManager();
             _entityStorage = new EntityStorage(_componentStoragesManager, this);
-            _entityFiltersManager = new EntityFiltersManager(_entityStorage);
+            _entityFiltersStorage = new Dictionary<ComponentTypeIdsKey, EntityFilter>();
         }
 
         public void Initialize()
@@ -58,9 +58,9 @@
             return ref _entityStorage.CreateEntity();
         }
 
-        public EntityFilter GetEntityFilter(params Type[] componentTypes)
+        public FilterBuilder CreateFilterBuilder()
         {
-            return _entityFiltersManager.GetFilter(componentTypes);
+            return new FilterBuilder(_entityFiltersStorage, _entityStorage);
         }
 
         public void RemoveEntity(ref Entity entity)

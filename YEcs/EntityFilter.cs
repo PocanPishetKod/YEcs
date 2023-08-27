@@ -4,13 +4,15 @@
     {
         private readonly EntityStorage _entityStorage;
         private readonly List<int> _entityIndeces;
-        private readonly IReadOnlyList<int> _componentTypeIds;
+        private readonly IReadOnlyList<int> _withComponentTypeIds;
+        private readonly IReadOnlyList<int> _exceptComponentTypeIds;
 
-        internal EntityFilter(IReadOnlyList<int> componentTypeIds, EntityStorage entityStorage)
+        internal EntityFilter(IReadOnlyList<int> withComponentTypeIds, IReadOnlyList<int> exceptComponentTypeIds, EntityStorage entityStorage)
         {
             _entityStorage = entityStorage;
             _entityIndeces = new List<int>();
-            _componentTypeIds = componentTypeIds;
+            _withComponentTypeIds = withComponentTypeIds;
+            _exceptComponentTypeIds = exceptComponentTypeIds;
         }
 
         public ref Entity this[int index]
@@ -23,21 +25,27 @@
 
         public bool IsCompatible(in Entity entity)
         {
-            foreach (var componentTypeId in _componentTypeIds)
+            foreach (var componentTypeId in _withComponentTypeIds)
             {
                 if (!entity.HasComponent(componentTypeId))
+                    return false;
+            }
+
+            foreach (var componentTypeId in _exceptComponentTypeIds)
+            {
+                if (entity.HasComponent(componentTypeId))
                     return false;
             }
 
             return true;
         }
 
-        public void AddEntity(int index)
+        internal void AddEntity(int index)
         {
             _entityIndeces.Add(index);
         }
 
-        public void RemoveEntity(int index)
+        internal void RemoveEntity(int index)
         {
             _entityIndeces.Remove(index);
         }
