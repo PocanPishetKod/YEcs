@@ -7,9 +7,9 @@ namespace YEcs
         private readonly List<Type> _withTypes;
         private readonly List<Type> _exceptTypes;
         private readonly EntityStorage _entityStorage;
-        private readonly Dictionary<ComponentTypeIdsKey, EntityFilter> _entityFiltersStorage;
+        private readonly IDictionary<ComponentTypeIdsKey, EntityFilter> _entityFiltersStorage;
 
-        internal FilterBuilder(Dictionary<ComponentTypeIdsKey, EntityFilter> entityFiltersStorage, EntityStorage entityStorage)
+        internal FilterBuilder(IDictionary<ComponentTypeIdsKey, EntityFilter> entityFiltersStorage, EntityStorage entityStorage)
         {
             _entityFiltersStorage = entityFiltersStorage;
             _entityStorage = entityStorage;
@@ -53,10 +53,10 @@ namespace YEcs
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void FillFilter(EntityFilter filter)
         {
-            for (int i = 0; i < _entityStorage.Count; i++)
+            for (var i = 0; i < _entityStorage.Count; i++)
             {
                 ref var entity = ref _entityStorage[i];
-                if (filter.IsCompatible(entity))
+                if (!filter.IsCompatible(entity))
                     continue;
 
                 filter.AddEntity(entity.Index);

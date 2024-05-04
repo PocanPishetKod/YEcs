@@ -15,13 +15,9 @@
             _exceptComponentTypeIds = exceptComponentTypeIds;
         }
 
-        public ref Entity this[int index]
-        {
-            get
-            {
-                return ref _entityStorage[_entityIndeces[index]];
-            }
-        }
+        public int Count => _entityIndeces.Count;
+        
+        public ref Entity this[int index] => ref _entityStorage[_entityIndeces[index]];
 
         public bool IsCompatible(in Entity entity)
         {

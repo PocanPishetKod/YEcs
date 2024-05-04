@@ -21,7 +21,13 @@ namespace YEcs
             var exceptHashCode = new HashCode();
             exceptHashCode.AddValues(_exceptComponentTypeIds);
 
-            return HashCode.Combine(withHashCode, exceptHashCode);
+            if (_withComponentTypeIds.Length > 0 && _exceptComponentTypeIds.Length > 0)
+                return HashCode.Combine(withHashCode.ToHashCode(), exceptHashCode.ToHashCode());
+
+            if (_withComponentTypeIds.Length > 0)
+                return withHashCode.ToHashCode();
+
+            return exceptHashCode.ToHashCode();
         }
 
         public override bool Equals([NotNullWhen(true)] object? obj)
