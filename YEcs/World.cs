@@ -6,7 +6,7 @@
         private readonly List<IUpdateSystem> _updateSystems;
         private readonly ComponentStoragesManager _componentStoragesManager;
         private readonly EntityStorage _entityStorage;
-        private readonly Dictionary<ComponentTypeIdsKey, EntityFilter> _entityFiltersStorage;
+        private readonly Dictionary<ArchetypeRestriction, EntityFilter> _entityFiltersStorage;
 
         public int EntitiesCount => _entityStorage.Count;
 
@@ -16,7 +16,7 @@
             _updateSystems = new List<IUpdateSystem>();
             _componentStoragesManager = new ComponentStoragesManager();
             _entityStorage = new EntityStorage(_componentStoragesManager, this);
-            _entityFiltersStorage = new Dictionary<ComponentTypeIdsKey, EntityFilter>();
+            _entityFiltersStorage = new Dictionary<ArchetypeRestriction, EntityFilter>();
         }
 
         public void Initialize()
@@ -58,12 +58,12 @@
             return ref _entityStorage.CreateEntity();
         }
 
-        public FilterBuilder CreateFilterBuilder()
+        public EntityFilterBuilder CreateFilterBuilder()
         {
-            return new FilterBuilder(_entityFiltersStorage, _entityStorage);
+            return new EntityFilterBuilder(_entityFiltersStorage, _entityStorage);
         }
 
-        public void RemoveEntity(ref Entity entity)
+        public void DestroyEntity(ref Entity entity)
         {
             _entityStorage.RemoveEntity(ref entity);
         }

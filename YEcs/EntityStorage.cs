@@ -17,6 +17,8 @@ namespace YEcs
         private readonly World _owner;
 
         public int Count => _count;
+        
+        public ref Entity this[int index] => ref _entities[index];
 
         public EntityStorage(ComponentStoragesManager componentStoragesManager, World owner)
         {
@@ -26,14 +28,6 @@ namespace YEcs
             _removedEntitiesCount = 0;
             _componentStoragesManager = componentStoragesManager;
             _owner = owner;
-        }
-
-        public ref Entity this[int index]
-        {
-            get
-            {
-                return ref _entities[index];
-            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,7 +66,6 @@ namespace YEcs
         public void RemoveEntity(ref Entity entity)
         {
 #if DEBUG
-
             if (ContainsRemovedIndex(entity.Index))
                 throw new InvalidOperationException($"Entity with index {entity.Index} already removed");
 #endif

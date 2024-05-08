@@ -2,12 +2,12 @@
 
 namespace YEcs
 {
-    internal readonly struct ComponentTypeIdsKey
+    internal readonly struct ArchetypeRestriction
     {
         private readonly int[] _withComponentTypeIds;
         private readonly int[] _exceptComponentTypeIds;
 
-        public ComponentTypeIdsKey(int[] withComponentTypeIds, int[] exceptComponentTypeIds)
+        public ArchetypeRestriction(int[] withComponentTypeIds, int[] exceptComponentTypeIds)
         {
             _withComponentTypeIds = withComponentTypeIds;
             _exceptComponentTypeIds = exceptComponentTypeIds;
@@ -15,27 +15,26 @@ namespace YEcs
 
         public override int GetHashCode()
         {
-            var withHashCode = new HashCode();
-            withHashCode.AddValues(_withComponentTypeIds);
-
-            var exceptHashCode = new HashCode();
-            exceptHashCode.AddValues(_exceptComponentTypeIds);
-
             if (_withComponentTypeIds.Length > 0 && _exceptComponentTypeIds.Length > 0)
-                return HashCode.Combine(withHashCode.ToHashCode(), exceptHashCode.ToHashCode());
+            {
+                return HashCode
+                    .Combine(
+                        HashCodeExtensions.Create(_withComponentTypeIds).ToHashCode(),
+                        HashCodeExtensions.Create(_exceptComponentTypeIds).ToHashCode());
+            }
 
             if (_withComponentTypeIds.Length > 0)
-                return withHashCode.ToHashCode();
+                return HashCodeExtensions.Create(_withComponentTypeIds).ToHashCode();
 
-            return exceptHashCode.ToHashCode();
+            if (_exceptComponentTypeIds.Length > 0)
+                return HashCodeExtensions.Create(_exceptComponentTypeIds).ToHashCode();
+            
+            return 0;
         }
 
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
-            if (obj == null)
-                return false;
-
-            if (!(obj is ComponentTypeIdsKey other))
+            if (obj is not ArchetypeRestriction other)
                 return false;
 
             if (_withComponentTypeIds.Length != other._withComponentTypeIds.Length)
@@ -53,6 +52,23 @@ namespace YEcs
             for (int i = 0; i < _exceptComponentTypeIds.Length; i++)
             {
                 if (_exceptComponentTypeIds[i] != other._exceptComponentTypeIds[i])
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool IsCompatible(Archetype archetype)
+        {
+            for (var i = 0; i < _withComponentTypeIds.Length; i++)
+            {
+                if (!archetype.IsCompatible(_withComponentTypeIds[i]))
+                    return false;
+            }
+
+            for (var i = 0; i < _exceptComponentTypeIds.Length; i++)
+            {
+                if (archetype.IsCompatible(_exceptComponentTypeIds[i]))
                     return false;
             }
 

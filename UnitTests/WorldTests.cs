@@ -12,7 +12,7 @@ namespace UnitTests
 
             Assert.Equal(1, world.EntitiesCount);
 
-            world.RemoveEntity(ref entity);
+            world.DestroyEntity(ref entity);
 
             Assert.Equal(0, world.EntitiesCount);
         }
@@ -23,7 +23,7 @@ namespace UnitTests
             var world = new World();
 
             ref var firstEntity = ref world.CreateEntity();
-            world.RemoveEntity(ref firstEntity);
+            world.DestroyEntity(ref firstEntity);
             ref var secondEntity = ref world.CreateEntity();
 
             Assert.Equal(firstEntity, secondEntity);
@@ -38,9 +38,9 @@ namespace UnitTests
             Assert.Throws<InvalidOperationException>(() =>
             {
                 ref var entity = ref world.CreateEntity();
-                world.RemoveEntity(ref entity);
+                world.DestroyEntity(ref entity);
 
-                world.RemoveEntity(ref entity);
+                world.DestroyEntity(ref entity);
             });
         }
     }

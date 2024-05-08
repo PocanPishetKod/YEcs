@@ -2,14 +2,14 @@
 
 namespace YEcs
 {
-    public class FilterBuilder
+    public class EntityFilterBuilder
     {
         private readonly List<Type> _withTypes;
         private readonly List<Type> _exceptTypes;
         private readonly EntityStorage _entityStorage;
-        private readonly IDictionary<ComponentTypeIdsKey, EntityFilter> _entityFiltersStorage;
+        private readonly IDictionary<ArchetypeRestriction, EntityFilter> _entityFiltersStorage;
 
-        internal FilterBuilder(IDictionary<ComponentTypeIdsKey, EntityFilter> entityFiltersStorage, EntityStorage entityStorage)
+        internal EntityFilterBuilder(IDictionary<ArchetypeRestriction, EntityFilter> entityFiltersStorage, EntityStorage entityStorage)
         {
             _entityFiltersStorage = entityFiltersStorage;
             _entityStorage = entityStorage;
@@ -17,13 +17,13 @@ namespace YEcs
             _exceptTypes = new List<Type>();
         }
 
-        public FilterBuilder With<TComponent>() where TComponent : struct
+        public EntityFilterBuilder With<TComponent>() where TComponent : struct
         {
             _withTypes.Add(typeof(TComponent));
             return this;
         }
 
-        public FilterBuilder Except<TComponent>() where TComponent : struct
+        public EntityFilterBuilder Except<TComponent>() where TComponent : struct
         {
             _exceptTypes.Add(typeof(TComponent));
             return this;
@@ -31,21 +31,16 @@ namespace YEcs
 
         public EntityFilter Build()
         {
-            var key = new ComponentTypeIdsKey(
+            var restriction = new ArchetypeRestriction(
                 _withTypes.Select(ComponentTypesStorage.GetId).ToArray(),
                 _exceptTypes.Select(ComponentTypesStorage.GetId).ToArray());
 
-            if (!_entityFiltersStorage.TryGetValue(key, out var filter))
-            {
-                filter = new EntityFilter(
-                    _withTypes.Select(ComponentTypesStorage.GetId).ToList(),
-                    _exceptTypes.Select(ComponentTypesStorage.GetId).ToList(),
-                    _entityStorage);
-
-                _entityFiltersStorage.Add(key, filter);
-
-                FillFilter(filter);
-            }
+            if (_entityFiltersStorage.TryGetValue(restriction, out var filter))
+                return filter;
+            
+            filter = new EntityFilter(restriction, _entityStorage);
+            _entityFiltersStorage.Add(restriction, filter);
+            FillFilter(filter);
 
             return filter;
         }
@@ -56,7 +51,7 @@ namespace YEcs
             for (var i = 0; i < _entityStorage.Count; i++)
             {
                 ref var entity = ref _entityStorage[i];
-                if (!filter.IsCompatible(entity))
+                if (!filter.IsCompatible(ref entity))
                     continue;
 
                 filter.AddEntity(entity.Index);

@@ -28,7 +28,7 @@
         private T[] _components;
         private int _count;
 
-        private int[] _removedComponentsIndeces;
+        private int[] _removedComponentsIndices;
         private int _removedComponentsCount;
 
         public int ComponentTypeId { get; }
@@ -37,7 +37,7 @@
         {
             _components = new T[DefaultArraySize];
             _count = 0;
-            _removedComponentsIndeces = new int[DefaultArraySize];
+            _removedComponentsIndices = new int[DefaultArraySize];
             _removedComponentsCount = 0;
             ComponentTypeId = ComponentTypesStorage.GetId<T>();
         }
@@ -54,8 +54,8 @@
         {
             if (_removedComponentsCount > 0)
             {
-                _components[_removedComponentsIndeces[_removedComponentsCount - 1]] = new T();
-                return new ComponentRef<T>(_removedComponentsIndeces[--_removedComponentsCount], this);
+                _components[_removedComponentsIndices[_removedComponentsCount - 1]] = new T();
+                return new ComponentRef<T>(_removedComponentsIndices[--_removedComponentsCount], this);
             }
 
             if (_count == _components.Length)
@@ -73,10 +73,10 @@
                 throw new ArgumentException($"Invalid index = {index}. ComponentsArrayLength = {_components.Length}, ComponentsCount = {_count}");
 #endif
 
-            if (_removedComponentsCount == _removedComponentsIndeces.Length)
-                Array.Resize(ref _removedComponentsIndeces, _removedComponentsIndeces.Length + ExtensionValue);
+            if (_removedComponentsCount == _removedComponentsIndices.Length)
+                Array.Resize(ref _removedComponentsIndices, _removedComponentsIndices.Length + ExtensionValue);
 
-            _removedComponentsIndeces[_removedComponentsCount++] = index;
+            _removedComponentsIndices[_removedComponentsCount++] = index;
         }
     }
 }

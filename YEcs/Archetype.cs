@@ -24,36 +24,29 @@ namespace YEcs
 
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
-            if (obj == null)
-                return false;
-
-            if (!(obj is ArchetypeHashValue other))
-                return false;
-
-            return Equals(other);
+            return obj is ArchetypeHashValue other && Equals(other);
         }
     }
 
     public struct Archetype : IEquatable<Archetype>
     {
-        private readonly IReadOnlyCollection<int>? _componentTypeIds;
+        private readonly IReadOnlyCollection<int> _componentTypeIds;
         private ArchetypeHashValue? _hashValue;
 
-        internal ArchetypeHashValue HashValue
+        private ArchetypeHashValue HashValue
         {
             get
             {
-                if (!_hashValue.HasValue)
-                    _hashValue = CalculateHash();
+                _hashValue ??= CalculateHash();
 
                 return _hashValue.Value;
             }
         }
 
-        public Archetype(IReadOnlyCollection<int>? componentTypeIds)
+        public Archetype(IReadOnlyCollection<int> componentTypeIds)
         {
             _hashValue = null;
-            _componentTypeIds = componentTypeIds;
+            _componentTypeIds = componentTypeIds ?? throw new ArgumentNullException(nameof(componentTypeIds));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,13 +76,12 @@ namespace YEcs
 
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
-            if (obj == null)
-                return false;
+            return obj is Archetype other && Equals(other);
+        }
 
-            if (!(obj is Archetype other))
-                return false;
-
-            return Equals(other);
+        public bool IsCompatible(int componentTypeId)
+        {
+            return _componentTypeIds.Contains(componentTypeId);
         }
     }
 }
