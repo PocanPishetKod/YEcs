@@ -1,29 +1,40 @@
-﻿namespace YEcs
+﻿using YEcs.Interface;
+using YEcs.Interfaces.EntitiesFiltering;
+using YEcs.Interfaces.Historicity;
+using YEcs.Interfaces.Storaging;
+
+namespace YEcs
 {
-    public class World
+    public class World : IWorld<Entity, Archetype>
     {
         private readonly List<IInitializationSystem> _initializationSystems;
         private readonly List<IUpdateSystem> _updateSystems;
-        private readonly ComponentStoragesManager _componentStoragesManager;
-        private readonly EntityStorage _entityStorage;
-        private readonly Dictionary<ArchetypeRestriction, EntityFilter> _entityFiltersStorage;
+        private readonly IEntitiesStorage _entitiesStorage;
+        private readonly IEntityFiltersBuilderFactory _entityFiltersBuilderFactory;
+        private readonly IFiltersUpdater _filtersUpdater;
+        private readonly IWorldHistory _worldHistory;
 
-        public int EntitiesCount => _entityStorage.Count;
+        public int EntitiesCount => _entitiesStorage.Count;
 
-        public World()
+        public World(
+            IEntitiesStorage entitiesStorage,
+            IEntityFiltersBuilderFactory entityFiltersBuilderFactory,
+            IFiltersUpdater filtersUpdater, IWorldHistory worldHistory)
         {
             _initializationSystems = new List<IInitializationSystem>();
             _updateSystems = new List<IUpdateSystem>();
-            _componentStoragesManager = new ComponentStoragesManager();
-            _entityStorage = new EntityStorage(_componentStoragesManager, this);
-            _entityFiltersStorage = new Dictionary<ArchetypeRestriction, EntityFilter>();
+            _entitiesStorage = entitiesStorage ?? throw new ArgumentNullException(nameof(entitiesStorage));
+            _entityFiltersBuilderFactory = entityFiltersBuilderFactory ??
+                                           throw new ArgumentNullException(nameof(entityFiltersBuilderFactory));
+            _filtersUpdater = filtersUpdater ?? throw new ArgumentNullException(nameof(filtersUpdater));
+            _worldHistory = worldHistory ?? throw new ArgumentNullException(nameof(worldHistory));
         }
 
         public void Initialize()
         {
             foreach (var system in _initializationSystems)
             {
-                system.Process();
+                system.Execute();
             }
         }
 
@@ -31,41 +42,47 @@
         {
             foreach (var system in _updateSystems)
             {
-                system.Process(deltaTime);
+                system.Execute(deltaTime);
             }
         }
 
-        public World AddInitializationSystem(IInitializationSystem system)
+        internal void AddInitializationSystem(IInitializationSystem system)
         {
-            if (system == null)
-                throw new ArgumentNullException(nameof(system));
+            ArgumentNullException.ThrowIfNull(system);
 
             _initializationSystems.Add(system);
-            return this;
         }
 
-        public World AddUpdateSystem(IUpdateSystem system)
+        internal void AddUpdateSystem(IUpdateSystem system)
         {
-            if (system == null)
-                throw new ArgumentNullException(nameof(system));
+            ArgumentNullException.ThrowIfNull(system);
 
             _updateSystems.Add(system);
-            return this;
         }
 
         public ref Entity CreateEntity()
         {
-            return ref _entityStorage.CreateEntity();
+            ref var entity = ref _entitiesStorage.Create();
+            
+            _worldHistory.Push(WorldEvent.NewEntityCreatedEvent(entity.Index));
+            
+            return ref entity;
         }
 
-        public EntityFilterBuilder CreateFilterBuilder()
+        public IEntityFilterBuilder<Entity, Archetype> CreateFilterBuilder()
         {
-            return new EntityFilterBuilder(_entityFiltersStorage, _entityStorage);
+            return _entityFiltersBuilderFactory.Create();
+        }
+
+        public void UpdateFilters()
+        {
+            _filtersUpdater.Update(_worldHistory);
         }
 
         public void DestroyEntity(ref Entity entity)
         {
-            _entityStorage.RemoveEntity(ref entity);
+            _entitiesStorage.Remove(ref entity);
+            _worldHistory.Push(WorldEvent.NewEntityDestroyedEvent(entity.Index));
         }
     }
 }

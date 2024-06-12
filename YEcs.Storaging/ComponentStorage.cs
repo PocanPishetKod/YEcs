@@ -1,26 +1,10 @@
-﻿namespace YEcs
+﻿using YEcs.Interface;
+using YEcs.Interfaces.Storaging;
+
+namespace YEcs
 {
-    internal readonly struct ComponentRef<TComponent> where TComponent : struct
-    {
-        public readonly int Index;
-        public readonly ComponentStorage<TComponent> Storage;
-
-        public ComponentRef(int index, ComponentStorage<TComponent> componentStorage)
-        {
-            Index = index;
-            Storage = componentStorage;
-        }
-    }
-
-    internal interface IComponentStorage
-    {
-        int ComponentTypeId { get; }
-
-        void RemoveComponent(int index);
-    }
-
-    internal class ComponentStorage<T> : IComponentStorage
-        where T : struct
+    internal class ComponentStorage<T> : IComponentStorage<T>
+        where T : struct, IReusable
     {
         private const int DefaultArraySize = 10;
         private const int ExtensionValue = 10;
@@ -31,42 +15,36 @@
         private int[] _removedComponentsIndices;
         private int _removedComponentsCount;
 
-        public int ComponentTypeId { get; }
-
+        public ref T this[int index] => ref _components[index];
+        
         public ComponentStorage()
         {
             _components = new T[DefaultArraySize];
             _count = 0;
             _removedComponentsIndices = new int[DefaultArraySize];
             _removedComponentsCount = 0;
-            ComponentTypeId = ComponentTypesStorage.GetId<T>();
         }
 
-        public ref T this[int index]
-        {
-            get
-            {
-                return ref _components[index];
-            }
-        }
-
-        public ComponentRef<T> CreateComponent()
+        public ComponentRef<T> Create()
         {
             if (_removedComponentsCount > 0)
             {
-                _components[_removedComponentsIndices[_removedComponentsCount - 1]] = new T();
-                return new ComponentRef<T>(_removedComponentsIndices[--_removedComponentsCount], this);
+                _removedComponentsCount--;
+                
+                return new ComponentRef<T>(
+                    ref _components[_removedComponentsIndices[_removedComponentsCount]],
+                    _removedComponentsIndices[_removedComponentsCount]);
             }
 
-            if (_count == _components.Length)
+            if (_components.Length == _count)
                 Array.Resize(ref _components, _components.Length + ExtensionValue);
 
             _components[_count] = new T();
 
-            return new ComponentRef<T>(_count++, this);
+            return new ComponentRef<T>(ref _components[_count], _count++);
         }
 
-        public void RemoveComponent(int index)
+        public void Remove(int index)
         {
 #if DEBUG
             if (index < 0 || index >= _components.Length || index >= _count)
@@ -77,6 +55,8 @@
                 Array.Resize(ref _removedComponentsIndices, _removedComponentsIndices.Length + ExtensionValue);
 
             _removedComponentsIndices[_removedComponentsCount++] = index;
+            ref var component = ref _components[index];
+            component.Clear();
         }
     }
 }

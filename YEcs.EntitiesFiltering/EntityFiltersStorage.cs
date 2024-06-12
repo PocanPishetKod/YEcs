@@ -1,20 +1,20 @@
-namespace YEcs;
+namespace YEcs.EntitiesFiltering;
 
-internal class EntityFiltersStorage : IEntityFiltersStorage, IArchetypeEntityFiltersStorage
+internal class EntityFiltersStorage : IByArchetypeEntityFiltersStorage
 {
-    private readonly Dictionary<ArchetypeRestriction, EntityFilter> _entityFiltersMap;
+    private readonly Dictionary<ArchetypeMask, EntityFilter> _entityFiltersMap;
 
     public EntityFiltersStorage()
     {
-        _entityFiltersMap = new Dictionary<ArchetypeRestriction, EntityFilter>();
+        _entityFiltersMap = new Dictionary<ArchetypeMask, EntityFilter>();
     }
 
-    public void Add(ArchetypeRestriction key, EntityFilter value)
+    public void Add(ArchetypeMask key, EntityFilter value)
     {
         _entityFiltersMap.Add(key, value);
     }
 
-    public bool TryGet(ArchetypeRestriction key, out EntityFilter? value)
+    public bool TryGet(ArchetypeMask key, out EntityFilter? value)
     {
         return _entityFiltersMap.TryGetValue(key, out value);
     }

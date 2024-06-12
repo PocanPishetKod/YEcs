@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using YEcs.Interface;
 
 namespace YEcs
 {
@@ -12,25 +13,28 @@ namespace YEcs
             _hashCode = hashCode;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(ArchetypeHashValue other)
         {
             return _hashCode == other._hashCode;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
             return _hashCode ?? 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
             return obj is ArchetypeHashValue other && Equals(other);
         }
     }
 
-    public struct Archetype : IEquatable<Archetype>
+    public struct Archetype : IArchetype, IEquatable<Archetype>
     {
-        private readonly IReadOnlyCollection<int> _componentTypeIds;
+        private readonly IReadOnlyCollection<Type> _componentTypes;
         private ArchetypeHashValue? _hashValue;
 
         private ArchetypeHashValue HashValue
@@ -43,45 +47,58 @@ namespace YEcs
             }
         }
 
-        public Archetype(IReadOnlyCollection<int> componentTypeIds)
+        public Archetype(IReadOnlyCollection<Type> componentTypes)
         {
             _hashValue = null;
-            _componentTypeIds = componentTypeIds ?? throw new ArgumentNullException(nameof(componentTypeIds));
+            _componentTypes = componentTypes ?? throw new ArgumentNullException(nameof(componentTypes));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ArchetypeHashValue CalculateHash()
         {
-            if (_componentTypeIds == null || _componentTypeIds.Count == 0)
+            if (_componentTypes == null || _componentTypes.Count == 0)
                 return new ArchetypeHashValue(null);
 
             var hashCode = new HashCode();
-            foreach (var componentTypeId in _componentTypeIds)
+            foreach (var componentType in _componentTypes)
             {
-                hashCode.Add(componentTypeId);
+                hashCode.Add(componentType);
             }
 
             return new ArchetypeHashValue(hashCode.ToHashCode());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Archetype other)
         {
             return HashValue.Equals(other.HashValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
             return HashValue.GetHashCode();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals<TArchetype>(TArchetype other) where TArchetype : IArchetype
+        {
+            if (other is not Archetype typedOther)
+                return false;
+
+            return HashValue.Equals(typedOther.HashValue);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
             return obj is Archetype other && Equals(other);
         }
 
-        public bool IsCompatible(int componentTypeId)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsCompatible(Type componentType)
         {
-            return _componentTypeIds.Contains(componentTypeId);
+            return _componentTypes.Contains(componentType);
         }
     }
 }

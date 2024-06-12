@@ -1,15 +1,22 @@
 ﻿using YEcs;
+using YEcs.Interface;
 
 namespace UnitTests
 {
-    public struct TestPositionComponent
+    public struct TestPositionComponent : IReusable
     {
-        
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public struct TestInputComponent
+    public struct TestInputComponent : IReusable
     {
-        
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class EntityFilterTests

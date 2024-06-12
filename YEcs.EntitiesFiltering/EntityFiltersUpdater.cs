@@ -1,12 +1,12 @@
-namespace YEcs;
+namespace YEcs.EntitiesFiltering;
 
 internal class EntityFiltersUpdater
 {
-    private readonly IArchetypeEntityFiltersStorage _archetypeEntityFiltersStorage;
+    private readonly IByArchetypeEntityFiltersStorage _byArchetypeEntityFiltersStorage;
 
-    public EntityFiltersUpdater(IArchetypeEntityFiltersStorage archetypeEntityFiltersStorage)
+    public EntityFiltersUpdater(IByArchetypeEntityFiltersStorage byArchetypeEntityFiltersStorage)
     {
-        _archetypeEntityFiltersStorage = archetypeEntityFiltersStorage;
+        _byArchetypeEntityFiltersStorage = byArchetypeEntityFiltersStorage;
     }
 
     public void OnComponentAdded(ref Archetype archetype)
@@ -21,7 +21,7 @@ internal class EntityFiltersUpdater
 
     private void UpdateFilters(ref Entity entity, ref Archetype oldArchetype)
     {
-        var currentFilters = _archetypeEntityFiltersStorage.Get(ref oldArchetype);
+        var currentFilters = _byArchetypeEntityFiltersStorage.Get(ref oldArchetype);
         foreach (var filter in currentFilters)
         {
             if (!filter.IsCompatible(ref entity))
@@ -29,7 +29,7 @@ internal class EntityFiltersUpdater
         }
 
         var newArchetype = entity.Archetype;
-        var newFilters = _archetypeEntityFiltersStorage.Get(ref newArchetype);
+        var newFilters = _byArchetypeEntityFiltersStorage.Get(ref newArchetype);
         foreach (var filter in newFilters)
         {
             filter.AddEntity(entity.Index);

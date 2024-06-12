@@ -1,80 +1,89 @@
-﻿namespace YEcs
+﻿using YEcs.Interface;
+using YEcs.Interfaces.Historicity;
+using YEcs.Interfaces.Storaging;
+
+namespace YEcs;
+
+public readonly struct Entity : IEntity<Archetype>, IReusable
 {
-    public struct Entity
+    private readonly IComponentStorageFactory _componentStorageFactory;
+    private readonly Dictionary<Type, int> _componentKeys;
+    private readonly IWorldHistory _worldHistory;
+
+    public int Index { get; }
+
+    public Archetype Archetype => new(_componentKeys.Keys);
+
+    public Entity(int index, IComponentStorageFactory componentStorageFactory, IWorldHistory worldHistory)
     {
-        private readonly ComponentStoragesManager _componentStoragesManager;
-        private readonly Dictionary<int, int> _componentIndices;
-        private readonly World _owner;
+        _componentStorageFactory = componentStorageFactory;
+        _componentKeys = new Dictionary<Type, int>();
+        Index = index;
+        _worldHistory = worldHistory;
+    }
 
-        internal int Index { get; }
+    public bool HasComponent<TComponent>() where TComponent : struct, IReusable
+    {
+        var searchType = typeof(TComponent);
 
-        public int ComponentsCount => _componentIndices.Count;
-
-        internal bool IsRemoved { get; set; }
-
-        public Archetype Archetype => new Archetype(_componentIndices.Keys);
-
-        internal Entity(int index, ComponentStoragesManager componentStoragesManager,
-            World owner)
+        foreach (var entityComponentType in _componentKeys.Keys)
         {
-            _componentStoragesManager = componentStoragesManager;
-            _componentIndices = new Dictionary<int, int>();
-            Index = index;
-            _owner = owner;
-            IsRemoved = false;
+            if (entityComponentType == searchType)
+                return true;
         }
 
-        public bool HasComponent(int componentTypeId)
-        {
-            foreach (var entityComponentTypeId in _componentIndices.Keys)
-            {
-                if (entityComponentTypeId == componentTypeId)
-                    return true;
-            }
+        return false;
+    }
 
-            return false;
-        }
-
-        public ref TComponent CreateComponent<TComponent>() where TComponent : struct
-        {
+    public ref TComponent CreateComponent<TComponent>() where TComponent : struct, IReusable
+    {
+        var componentType = typeof(TComponent);
 #if DEBUG
-            if (_componentIndices.Keys.Contains(ComponentTypesStorage.GetId(typeof(TComponent))))
-                throw new InvalidOperationException("Component already exists on entity");
+        if (_componentKeys.Keys.Contains(componentType))
+            throw new InvalidOperationException("Component already exists on entity.");
 #endif
-            var componentRef = _componentStoragesManager.CreateComponent<TComponent>();
-            _componentIndices.Add(componentRef.Storage.ComponentTypeId, componentRef.Index);
+        
+        var componentRef = _componentStorageFactory.Get<TComponent>().Create();
+        _componentKeys.Add(componentType, componentRef.Key);
 
-            return ref componentRef.Storage[componentRef.Index];
-        }
+        _worldHistory.Push(WorldEvent.NewEntityComponentCreatedEvent(Index, componentType));
+        
+        return ref componentRef.Component;
+    }
 
-        public ref TComponent GetComponent<TComponent>() where TComponent : struct
-        {
+    public ref TComponent GetComponent<TComponent>() where TComponent : struct, IReusable
+    {
 #if DEBUG
-            if (!_componentIndices.Keys.Contains(ComponentTypesStorage.GetId(typeof(TComponent))))
-                throw new InvalidOperationException($"Component {typeof(TComponent).Name} not found");
+        if (!_componentKeys.Keys.Contains(typeof(TComponent)))
+            throw new InvalidOperationException($"Component {typeof(TComponent).Name} not found.");
 #endif
 
-            return ref _componentStoragesManager
-                .FindComponent<TComponent>(_componentIndices[ComponentTypesStorage.GetId<TComponent>()]);
-        }
+        return ref _componentStorageFactory
+            .Get<TComponent>()[_componentKeys[typeof(TComponent)]];
+    }
 
-        public void RemoveComponent<TComponent>() where TComponent : struct
+    public void RemoveComponent<TComponent>() where TComponent : struct, IReusable
+    {
+        var componentType = typeof(TComponent);
+        if (!_componentKeys.Remove(componentType, out var componentKey))
+            return;
+
+        _componentStorageFactory
+            .Get<TComponent>()
+            .Remove(componentKey);
+        
+        _worldHistory.Push(WorldEvent.NewEntityComponentRemovedEvent(Index, componentType));
+    }
+
+    public void Clear()
+    {
+        foreach (var componentMapElement in _componentKeys)
         {
-            var componentTypeId = ComponentTypesStorage.GetId(typeof(TComponent));
-#if DEBUG
-            if (!_componentIndices.TryGetValue(componentTypeId, out var componentIndex))
-                throw new InvalidOperationException($"Component with type id {componentTypeId} is missing from entity {Index}");
-#endif
+            (_componentStorageFactory
+                .Get(componentMapElement.Key) as IComponentStorage)
+                !.Remove(componentMapElement.Value);
         }
 
-        internal void Clear()
-        {
-            foreach (var componentMapElement in _componentIndices)
-            {
-                _componentStoragesManager.RemoveComponent(componentMapElement.Key, componentMapElement.Value);
-            }
-
-            _componentIndices.Clear();
-        }
+        _componentKeys.Clear();
     }
 }
