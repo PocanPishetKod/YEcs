@@ -16,12 +16,7 @@ public enum WorldEventType : byte
     EntityDestroyed,
     
     /// <summary>
-    /// A component was created in the entity.
+    /// An entity archetype has been changed.
     /// </summary>
-    EntityComponentCreated,
-    
-    /// <summary>
-    /// A component has been removed from an entity.
-    /// </summary>
-    EntityComponentRemoved
+    EntityArchetypeChanged
 }

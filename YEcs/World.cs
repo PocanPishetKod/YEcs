@@ -19,7 +19,8 @@ namespace YEcs
         public World(
             IEntitiesStorage entitiesStorage,
             IEntityFiltersBuilderFactory entityFiltersBuilderFactory,
-            IFiltersUpdater filtersUpdater, IWorldHistory worldHistory)
+            IFiltersUpdater filtersUpdater,
+            IWorldHistory worldHistory)
         {
             _initializationSystems = new List<IInitializationSystem>();
             _updateSystems = new List<IUpdateSystem>();
@@ -77,12 +78,14 @@ namespace YEcs
         public void UpdateFilters()
         {
             _filtersUpdater.Update(_worldHistory);
+            _worldHistory.Clear();
         }
 
         public void DestroyEntity(ref Entity entity)
         {
+            var archetype = entity.Archetype;
             _entitiesStorage.Remove(ref entity);
-            _worldHistory.Push(WorldEvent.NewEntityDestroyedEvent(entity.Index));
+            _worldHistory.Push(WorldEvent.NewEntityDestroyedEvent(entity.Index, archetype));
         }
     }
 }

@@ -19,7 +19,7 @@ internal class EntityFiltersStorage : IByArchetypeEntityFiltersStorage
         return _entityFiltersMap.TryGetValue(key, out value);
     }
 
-    public ICollection<EntityFilter> Get(ref Archetype archetype)
+    public IReadOnlyList<EntityFilter> Get(in Archetype archetype)
     {
         var result = new List<EntityFilter>();
         foreach (var pair in _entityFiltersMap)

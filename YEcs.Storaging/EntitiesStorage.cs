@@ -19,8 +19,8 @@ public class EntitiesStorage : IEntitiesStorage
     private readonly IWorldHistory _worldHistory;
 
     public int Count => _count;
-
-    public ref Entity this[int index] => ref _entities[index];
+    
+    public ref Entity this[int entityIndex] => ref _entities[entityIndex];
 
     public EntitiesStorage(IComponentStorageFactory componentStorageFactory, IWorldHistory worldHistory)
     {

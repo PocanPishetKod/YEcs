@@ -5,26 +5,42 @@ namespace YEcs.Historicity;
 
 public class WorldHistory : IWorldHistory
 {
-    private readonly List<WorldEvent> _events;
+    private WorldEvent[] _events;
+    private readonly int _capacityStep;
+    private int _count;
 
-    public WorldHistory(int capacity)
+    public int Length => _events.Length;
+    
+    public WorldHistory(int capacity, int capacityStep)
     {
-        _events = new List<WorldEvent>(capacity);
+        if (capacity < 0)
+            throw new ArgumentException(nameof(capacity));
+
+        if (capacityStep <= 0)
+            throw new AggregateException(nameof(capacityStep));
+        
+        _events = new WorldEvent[capacity];
+        _capacityStep = capacityStep;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Push(WorldEvent @event)
     {
-        _events.Add(@event);
+        if (_count == _events.Length)
+            Array.Resize(ref _events, _events.Length + _capacityStep);
+
+        _events[_count++] = @event;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
-        _events.Clear();
+        _count = 0;
     }
 
-    public int Length => _events.Count;
-
-    public WorldEvent this[int index] => _events[index];
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IHistoryNavigator CreateNavigator()
+    {
+        return new HistoryNavigator(_events, _count);
+    }
 }

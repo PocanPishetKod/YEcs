@@ -3,10 +3,11 @@ using YEcs.Common;
 
 namespace YEcs.EntitiesFiltering;
 
-public readonly struct ArchetypeMask
+public struct ArchetypeMask
 {
     private readonly IReadOnlyList<Type> _withComponentTypes;
     private readonly IReadOnlyList<Type> _exceptComponentTypes;
+    private int? _lazyHashCode;
 
     public ArchetypeMask(IReadOnlyList<Type> withComponentTypes, IReadOnlyList<Type> exceptComponentTypes)
     {
@@ -16,19 +17,30 @@ public readonly struct ArchetypeMask
 
     public override int GetHashCode()
     {
+        if (_lazyHashCode.HasValue)
+            return _lazyHashCode.Value;
+        
         if (_withComponentTypes.Count > 0 && _exceptComponentTypes.Count > 0)
         {
-            return HashCode
+            _lazyHashCode = HashCode
                 .Combine(
                     HashCodeExtensions.Create(_withComponentTypes).ToHashCode(),
                     HashCodeExtensions.Create(_exceptComponentTypes).ToHashCode());
+
+            return _lazyHashCode.Value;
         }
 
         if (_withComponentTypes.Count > 0)
-            return HashCodeExtensions.Create(_withComponentTypes).ToHashCode();
+        {
+            _lazyHashCode = HashCodeExtensions.Create(_withComponentTypes).ToHashCode();
+            return _lazyHashCode.Value;
+        }
 
         if (_exceptComponentTypes.Count > 0)
-            return HashCodeExtensions.Create(_exceptComponentTypes).ToHashCode();
+        {
+            _lazyHashCode = HashCodeExtensions.Create(_exceptComponentTypes).ToHashCode();
+            return _lazyHashCode.Value;
+        }
 
         return 0;
     }

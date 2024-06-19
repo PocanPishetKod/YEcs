@@ -18,23 +18,38 @@ public readonly struct WorldEvent
     public readonly int EntityIndex;
     
     /// <summary>
-    /// The type of component removed or added.
+    /// The previous archetype of entity.
     /// Can be null if the event is not related to the deletion or addition of a component.
     /// </summary>
-    public readonly Type? TargetComponentType;
+    public readonly Archetype? PreviousArchetype;
 
-    private WorldEvent(WorldEventType type, int entityIndex, Type? targetComponentType)
+    /// <summary>
+    /// The new archetype of entity.
+    /// Can be null if the event is not related to the deletion or addition of a component.
+    /// </summary>
+    public readonly Archetype? NewArchetype;
+
+    private WorldEvent(WorldEventType type, int entityIndex, Archetype newArchetype, Archetype previousArchetype)
     {
         Type = type;
         EntityIndex = entityIndex;
-        TargetComponentType = targetComponentType;
+        PreviousArchetype = previousArchetype;
+        NewArchetype = newArchetype;
+    }
+    
+    private WorldEvent(WorldEventType type, int entityIndex, Archetype archetype)
+    {
+        Type = type;
+        EntityIndex = entityIndex;
+        PreviousArchetype = archetype;
     }
     
     private WorldEvent(WorldEventType type, int entityIndex)
     {
         Type = type;
         EntityIndex = entityIndex;
-        TargetComponentType = null;
+        PreviousArchetype = null;
+        NewArchetype = null;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,19 +59,15 @@ public readonly struct WorldEvent
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static WorldEvent NewEntityDestroyedEvent(int entityIndex)
+    public static WorldEvent NewEntityDestroyedEvent(int entityIndex, Archetype archetype)
     {
-        return new WorldEvent(WorldEventType.EntityDestroyed, entityIndex);
+        return new WorldEvent(WorldEventType.EntityDestroyed, entityIndex, archetype);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static WorldEvent NewEntityComponentCreatedEvent(int entityIndex, Type componentType)
+    public static WorldEvent NewEntityArchetypeChangedEvent(int entityIndex, Archetype newArchetype,
+        Archetype previousArchetype)
     {
-        return new WorldEvent(WorldEventType.EntityComponentCreated, entityIndex, componentType);
-    }
-
-    public static WorldEvent NewEntityComponentRemovedEvent(int entityIndex, Type componentType)
-    {
-        return new WorldEvent(WorldEventType.EntityComponentRemoved, entityIndex, componentType);
+        return new WorldEvent(WorldEventType.EntityArchetypeChanged, entityIndex, newArchetype, previousArchetype);
     }
 }

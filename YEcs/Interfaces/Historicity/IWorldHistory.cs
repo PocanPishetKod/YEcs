@@ -20,10 +20,10 @@ public interface IWorldHistory
     /// History length - the number of events in a story.
     /// </summary>
     int Length { get; }
-    
+
     /// <summary>
-    /// Accessing an event by index.
+    /// Creates and returns history navigator.
     /// </summary>
-    /// <param name="index"></param>
-    WorldEvent this[int index] { get; }
+    /// <returns></returns>
+    IHistoryNavigator CreateNavigator();
 }

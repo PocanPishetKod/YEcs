@@ -47,6 +47,8 @@ namespace YEcs
             }
         }
 
+        public static Archetype Empty => new (Array.Empty<Type>());
+
         public Archetype(IReadOnlyCollection<Type> componentTypes)
         {
             _hashValue = null;
@@ -99,6 +101,30 @@ namespace YEcs
         public bool IsCompatible(Type componentType)
         {
             return _componentTypes.Contains(componentType);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Archetype Subtract(Type componentType)
+        {
+            var newComponentTypes = new List<Type>();
+            foreach (var selfComponentType in _componentTypes)
+            {
+                if (selfComponentType == componentType)
+                    continue;
+                
+                newComponentTypes.Add(selfComponentType);
+            }
+
+            return new Archetype(newComponentTypes);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Archetype Add(Type componentType)
+        {
+            var newComponentTypes = new List<Type>() { componentType };
+            newComponentTypes.AddRange(_componentTypes);
+
+            return new Archetype(newComponentTypes);
         }
     }
 }

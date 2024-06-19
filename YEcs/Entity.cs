@@ -46,7 +46,9 @@ public readonly struct Entity : IEntity<Archetype>, IReusable
         var componentRef = _componentStorageFactory.Get<TComponent>().Create();
         _componentKeys.Add(componentType, componentRef.Key);
 
-        _worldHistory.Push(WorldEvent.NewEntityComponentCreatedEvent(Index, componentType));
+        var archetype = Archetype;
+        _worldHistory.Push(WorldEvent
+            .NewEntityArchetypeChangedEvent(Index, archetype, archetype.Add(componentType) ));
         
         return ref componentRef.Component;
     }
@@ -71,8 +73,10 @@ public readonly struct Entity : IEntity<Archetype>, IReusable
         _componentStorageFactory
             .Get<TComponent>()
             .Remove(componentKey);
-        
-        _worldHistory.Push(WorldEvent.NewEntityComponentRemovedEvent(Index, componentType));
+
+        var archetype = Archetype;
+        _worldHistory.Push(WorldEvent
+            .NewEntityArchetypeChangedEvent(Index, archetype, archetype.Subtract(componentType)));
     }
 
     public void Clear()

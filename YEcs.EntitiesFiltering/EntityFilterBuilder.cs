@@ -33,13 +33,13 @@ public class EntityFilterBuilder : IEntityFilterBuilder<Entity, Archetype>
 
     public IEntityFilter<Entity, Archetype> Build()
     {
-        var restriction = new ArchetypeMask(_withTypes, _exceptTypes);
+        var mask = new ArchetypeMask(_withTypes, _exceptTypes);
 
-        if (_entityFiltersStorage.TryGet(restriction, out var filter))
+        if (_entityFiltersStorage.TryGet(mask, out var filter))
             return filter!;
 
-        filter = new EntityFilter(restriction, _entitiesStorage);
-        _entityFiltersStorage.Add(restriction, filter);
+        filter = new EntityFilter(mask, _entitiesStorage);
+        _entityFiltersStorage.Add(mask, filter);
         FillFilter(filter);
 
         return filter;
