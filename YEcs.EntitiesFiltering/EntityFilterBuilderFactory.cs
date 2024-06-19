@@ -9,10 +9,10 @@ public class EntityFilterBuilderFactory : IEntityFiltersBuilderFactory
     private readonly IEntityFiltersStorage _entityFiltersStorage;
     private readonly IEntitiesStorage _entitiesStorage;
 
-    public EntityFilterBuilderFactory(IEntitiesStorage entitiesStorage)
+    public EntityFilterBuilderFactory(IEntitiesStorage entitiesStorage, IEntityFiltersStorage entityFiltersStorage)
     {
         _entitiesStorage = entitiesStorage ?? throw new ArgumentNullException(nameof(entitiesStorage));
-        _entityFiltersStorage = new CachedByByArchetypeEntityFiltersStorage(new EntityFiltersStorage());
+        _entityFiltersStorage = entityFiltersStorage ?? throw new ArgumentNullException(nameof(entityFiltersStorage));
     }
 
     public IEntityFilterBuilder<Entity, Archetype> Create()

@@ -1,6 +1,6 @@
 namespace YEcs.EntitiesFiltering;
 
-internal class EntityFiltersStorage : IByArchetypeEntityFiltersStorage
+public class EntityFiltersStorage : IByArchetypeEntityFiltersStorage
 {
     private readonly Dictionary<ArchetypeMask, EntityFilter> _entityFiltersMap;
 

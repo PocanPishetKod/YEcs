@@ -17,9 +17,16 @@ internal class HistoryNavigator : IHistoryNavigator
         _max = count - 1;
     }
 
+    public bool IsEmpty => _count == 0;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref WorldEvent GetCurrent()
     {
+#if DEBUG
+        if (_count == 0)
+            throw new InvalidOperationException();
+#endif
+        
         return ref _events[_current];
     }
 

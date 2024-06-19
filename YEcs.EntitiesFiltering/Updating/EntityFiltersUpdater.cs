@@ -16,6 +16,9 @@ public class EntityFiltersUpdater : IFiltersUpdater
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Update(IWorldHistory worldHistory)
     {
+        if (worldHistory.Length == 0)
+            return;
+        
         _historyHandler.Handle(worldHistory.CreateNavigator());
     }
 }

@@ -4,9 +4,9 @@ public class CachedByByArchetypeEntityFiltersStorage : IByArchetypeEntityFilters
 {
     private readonly Dictionary<Archetype, IReadOnlyList<EntityFilter>> _entityFiltersMap;
     private readonly Dictionary<Archetype, bool> _visitArchetypeMap;
-    private readonly IByArchetypeEntityFiltersStorage _storage;
+    private readonly EntityFiltersStorage _storage;
 
-    public CachedByByArchetypeEntityFiltersStorage(IByArchetypeEntityFiltersStorage storage)
+    public CachedByByArchetypeEntityFiltersStorage(EntityFiltersStorage storage)
     {
         _storage = storage;
         _entityFiltersMap = new Dictionary<Archetype, IReadOnlyList<EntityFilter>>();

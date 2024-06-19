@@ -9,7 +9,7 @@ public class WorldHistory : IWorldHistory
     private readonly int _capacityStep;
     private int _count;
 
-    public int Length => _events.Length;
+    public int Length => _count;
     
     public WorldHistory(int capacity, int capacityStep)
     {

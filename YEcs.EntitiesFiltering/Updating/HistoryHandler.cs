@@ -15,9 +15,6 @@ public class HistoryHandler : IHistoryHandler
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Handle(IHistoryNavigator historyNavigator)
     {
-        if (!historyNavigator.Forward())
-            return;
-
         do
         {
             ref var worldEvent = ref historyNavigator.GetCurrent();
