@@ -6,8 +6,7 @@ namespace YEcs.Storaging;
 
 public class EntitiesStorage : IEntitiesStorage
 {
-    private const int ExtensionValue = 10;
-    private const int DefaultArraySize = 10;
+    private readonly int _expand;
 
     private Entity[] _entities;
     private int _count;
@@ -22,14 +21,21 @@ public class EntitiesStorage : IEntitiesStorage
     
     public ref Entity this[int entityIndex] => ref _entities[entityIndex];
 
-    public EntitiesStorage(IComponentStorageFactory componentStorageFactory, IWorldHistory worldHistory)
+    public EntitiesStorage(int capacity, int expand, IComponentStorageFactory componentStorageFactory, IWorldHistory worldHistory)
     {
-        _entities = new Entity[DefaultArraySize];
+        if (capacity < 0)
+            throw new ArgumentOutOfRangeException(nameof(capacity));
+
+        if (expand <= 0)
+            throw new ArgumentOutOfRangeException(nameof(expand));
+        
+        _componentStorageFactory = componentStorageFactory ?? throw new ArgumentNullException(nameof(componentStorageFactory));
+        _worldHistory = worldHistory ?? throw new ArgumentNullException(nameof(worldHistory));
+        _expand = expand;
+        _entities = new Entity[capacity];
         _count = 0;
-        _removedEntitiesIndices = new int[DefaultArraySize];
+        _removedEntitiesIndices = new int[capacity];
         _removedEntitiesCount = 0;
-        _componentStorageFactory = componentStorageFactory;
-        _worldHistory = worldHistory;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -58,7 +64,7 @@ public class EntitiesStorage : IEntitiesStorage
         }
 
         if (_count == _entities.Length)
-            Array.Resize(ref _entities, _entities.Length + ExtensionValue);
+            Array.Resize(ref _entities, _entities.Length + _expand);
 
         _entities[_count] = new Entity(_count, _componentStorageFactory, _worldHistory);
         return ref _entities[_count++];
@@ -72,7 +78,7 @@ public class EntitiesStorage : IEntitiesStorage
 #endif
 
         if (_removedEntitiesCount == _removedEntitiesIndices.Length)
-            Array.Resize(ref _removedEntitiesIndices, _removedEntitiesIndices.Length + ExtensionValue);
+            Array.Resize(ref _removedEntitiesIndices, _removedEntitiesIndices.Length + _expand);
 
         _removedEntitiesIndices[_removedEntitiesCount++] = entity.Index;
 

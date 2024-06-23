@@ -4,14 +4,14 @@ using YEcs.EntitiesFiltering.Updating;
 using YEcs.Historicity;
 using YEcs.Storaging;
 
-namespace Tests.Integration;
+namespace Benchmark;
 
 public static class Common
 {
-    public static WorldBuilder CreateWorldBuilder()
+    public static WorldBuilder CreateWorldBuilder(int capacity, int expand)
     {
-        var worldHistory = new WorldHistory(100, 25);
-        var entitiesStorage = new EntitiesStorage(10, 10, new ComponentStorageFactory(10, 10), worldHistory);
+        var worldHistory = new WorldHistory(capacity, expand);
+        var entitiesStorage = new EntitiesStorage(capacity, expand, new ComponentStorageFactory(capacity, expand), worldHistory);
         var entityFiltersStorage = new EntityFiltersStorage();
         var filtersUpdater = new EntityFiltersUpdater(
             new HistoryHandler(

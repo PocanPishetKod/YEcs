@@ -1,13 +1,12 @@
 ﻿using YEcs.Interface;
 using YEcs.Interfaces.Storaging;
 
-namespace YEcs
+namespace YEcs.Storaging
 {
     internal class ComponentStorage<T> : IComponentStorage<T>
         where T : struct, IReusable
     {
-        private const int DefaultArraySize = 10;
-        private const int ExtensionValue = 10;
+        private readonly int _expand;
 
         private T[] _components;
         private int _count;
@@ -17,11 +16,12 @@ namespace YEcs
 
         public ref T this[int index] => ref _components[index];
         
-        public ComponentStorage()
+        public ComponentStorage(int capacity, int expand)
         {
-            _components = new T[DefaultArraySize];
+            _expand = expand;
+            _components = new T[capacity];
             _count = 0;
-            _removedComponentsIndices = new int[DefaultArraySize];
+            _removedComponentsIndices = new int[capacity];
             _removedComponentsCount = 0;
         }
 
@@ -37,7 +37,7 @@ namespace YEcs
             }
 
             if (_components.Length == _count)
-                Array.Resize(ref _components, _components.Length + ExtensionValue);
+                Array.Resize(ref _components, _components.Length + _expand);
 
             _components[_count] = new T();
 
@@ -52,7 +52,7 @@ namespace YEcs
 #endif
 
             if (_removedComponentsCount == _removedComponentsIndices.Length)
-                Array.Resize(ref _removedComponentsIndices, _removedComponentsIndices.Length + ExtensionValue);
+                Array.Resize(ref _removedComponentsIndices, _removedComponentsIndices.Length + _expand);
 
             _removedComponentsIndices[_removedComponentsCount++] = index;
             ref var component = ref _components[index];

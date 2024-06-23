@@ -7,16 +7,26 @@ namespace YEcs.Storaging;
 public class ComponentStorageFactory : IComponentStorageFactory
 {
     private readonly Dictionary<Type, object> _storagesMap;
+    private readonly int _capacity;
+    private readonly int _expand;
 
-    public ComponentStorageFactory()
+    public ComponentStorageFactory(int capacity, int expand)
     {
+        if (capacity < 0)
+            throw new ArgumentOutOfRangeException(nameof(capacity));
+
+        if (expand <= 0)
+            throw new ArgumentOutOfRangeException(nameof(expand));
+        
         _storagesMap = new Dictionary<Type, object>();
+        _capacity = capacity;
+        _expand = expand;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ComponentStorage<TComponent> CreateStorage<TComponent>() where TComponent : struct, IReusable
     {
-        var storage = new ComponentStorage<TComponent>();
+        var storage = new ComponentStorage<TComponent>(_capacity, _expand);
         _storagesMap.Add(typeof(TComponent), storage);
         return storage;
     }
