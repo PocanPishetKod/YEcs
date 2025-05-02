@@ -23,10 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YEcs.EntitiesFiltering\YEcs.EntitiesFiltering.csproj" />
-    <ProjectReference Include="..\YEcs.Historicity\YEcs.Historicity.csproj" />
-    <ProjectReference Include="..\YEcs.Storaging\YEcs.Storaging.csproj" />
-    <ProjectReference Include="..\YEcs\YEcs.csproj" />
+    <ProjectReference Include="..\SlowlyEcs.EntitiesFiltering\SlowlyEcs.EntitiesFiltering.csproj" />
+    <ProjectReference Include="..\SlowlyEcs.Historicity\SlowlyEcs.Historicity.csproj" />
+    <ProjectReference Include="..\SlowlyEcs.Storaging\SlowlyEcs.Storaging.csproj" />
+    <ProjectReference Include="..\SlowlyEcs\SlowlyEcs.csproj" />
   </ItemGroup>
 
 </Project>

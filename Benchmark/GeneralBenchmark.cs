@@ -1,8 +1,8 @@
 using BenchmarkDotNet.Attributes;
 using Leopotam.EcsLite;
 using Tests.Integration;
-using YEcs;
-using YEcs.Interfaces.Storaging;
+using SlowlyEcs;
+using SlowlyEcs.Interfaces.Storaging;
 
 namespace Benchmark;
 

@@ -1,8 +1,8 @@
-﻿using YEcs;
-using YEcs.EntitiesFiltering;
-using YEcs.EntitiesFiltering.Updating;
-using YEcs.Historicity;
-using YEcs.Storaging;
+﻿using SlowlyEcs;
+using SlowlyEcs.EntitiesFiltering;
+using SlowlyEcs.EntitiesFiltering.Updating;
+using SlowlyEcs.Historicity;
+using SlowlyEcs.Storaging;
 
 namespace Tests.Integration
 {

@@ -1,4 +1,4 @@
-﻿using YEcs;
+﻿using SlowlyEcs;
 
 namespace Tests.Integration
 {
