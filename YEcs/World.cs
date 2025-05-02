@@ -1,11 +1,10 @@
-﻿using YEcs.Interface;
-using YEcs.Interfaces.EntitiesFiltering;
+﻿using YEcs.Interfaces.EntitiesFiltering;
 using YEcs.Interfaces.Historicity;
 using YEcs.Interfaces.Storaging;
 
 namespace YEcs
 {
-    public class World : IWorld<Entity, Archetype>
+    public class World : IWorld
     {
         private readonly List<IInitializationSystem> _initializationSystems;
         private readonly List<IUpdateSystem> _updateSystems;
@@ -13,14 +12,13 @@ namespace YEcs
         private readonly IEntityFiltersBuilderFactory _entityFiltersBuilderFactory;
         private readonly IFiltersUpdater _filtersUpdater;
         private readonly IWorldHistory _worldHistory;
+        private readonly IComponentStorageFactory _componentStorageFactory;
 
-        public int EntitiesCount => _entitiesStorage.Count;
-
-        public World(
-            IEntitiesStorage entitiesStorage,
+        public World(IEntitiesStorage entitiesStorage,
             IEntityFiltersBuilderFactory entityFiltersBuilderFactory,
             IFiltersUpdater filtersUpdater,
-            IWorldHistory worldHistory)
+            IWorldHistory worldHistory,
+            IComponentStorageFactory componentStorageFactory)
         {
             _initializationSystems = new List<IInitializationSystem>();
             _updateSystems = new List<IUpdateSystem>();
@@ -29,6 +27,8 @@ namespace YEcs
                                            throw new ArgumentNullException(nameof(entityFiltersBuilderFactory));
             _filtersUpdater = filtersUpdater ?? throw new ArgumentNullException(nameof(filtersUpdater));
             _worldHistory = worldHistory ?? throw new ArgumentNullException(nameof(worldHistory));
+            _componentStorageFactory = componentStorageFactory ??
+                                       throw new ArgumentNullException(nameof(componentStorageFactory));
         }
 
         public void Initialize()
@@ -65,12 +65,17 @@ namespace YEcs
         {
             ref var entity = ref _entitiesStorage.Create();
             
-            _worldHistory.Push(WorldEvent.NewEntityCreatedEvent(entity.Index));
+            _worldHistory.Push(WorldEvent.EntityCreatedEvent(entity.Index));
             
             return ref entity;
         }
 
-        public IEntityFilterBuilder<Entity, Archetype> CreateFilterBuilder()
+        public IComponentStorage<TComponent> GetComponentStorage<TComponent>() where TComponent : struct
+        {
+            return _componentStorageFactory.Get<TComponent>();
+        }
+
+        public IEntityFilterBuilder CreateFilterBuilder()
         {
             return _entityFiltersBuilderFactory.Create();
         }
@@ -83,9 +88,13 @@ namespace YEcs
 
         public void DestroyEntity(ref Entity entity)
         {
-            var archetype = entity.Archetype;
-            _entitiesStorage.Remove(ref entity);
-            _worldHistory.Push(WorldEvent.NewEntityDestroyedEvent(entity.Index, archetype));
+            _entitiesStorage.Remove(entity.Index);
+            _worldHistory.Push(WorldEvent.EntityDestroyedEvent(entity.Index));
+        }
+
+        public ChangeScope CreateChangeScope()
+        {
+            return new ChangeScope(this);
         }
     }
 }

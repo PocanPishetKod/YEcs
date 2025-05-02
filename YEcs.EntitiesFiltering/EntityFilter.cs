@@ -1,29 +1,27 @@
 ﻿using System.Collections;
-using YEcs.Interface;
+using YEcs.Interfaces.EntitiesFiltering;
 using YEcs.Interfaces.Storaging;
 
 namespace YEcs.EntitiesFiltering;
 
-public class EntityFilter : IEntityFilter<Entity, Archetype>
+public class EntityFilter : IReadOnlyEntityFilter
 {
     private readonly IEntitiesStorage _entitiesStorage;
-    private readonly List<int> _entityIndices;
+    private readonly ISet<int> _entityIndices;
     private readonly ArchetypeMask _mask;
 
     internal EntityFilter(ArchetypeMask mask, IEntitiesStorage entitiesStorage)
     {
         _entitiesStorage = entitiesStorage;
-        _entityIndices = new List<int>();
+        _entityIndices = new HashSet<int>();
         _mask = mask;
     }
 
     public int Count => _entityIndices.Count;
-        
-    public ref Entity this[int index] => ref _entitiesStorage[_entityIndices[index]];
 
-    internal bool IsCompatible(ref Entity entity)
+    internal bool IsCompatible(in Archetype archetype)
     {
-        return _mask.IsCompatible(entity.Archetype);
+        return _mask.IsCompatible(archetype);
     }
 
     internal void AddEntity(int index)
@@ -36,9 +34,9 @@ public class EntityFilter : IEntityFilter<Entity, Archetype>
         _entityIndices.Remove(index);
     }
 
-    public IEnumerator<Entity> GetEnumerator()
+    public IEnumerator<int> GetEnumerator()
     {
-        throw new NotImplementedException();
+        return _entityIndices.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

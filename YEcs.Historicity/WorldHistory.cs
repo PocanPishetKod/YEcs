@@ -10,7 +10,9 @@ public class WorldHistory : IWorldHistory
     private int _count;
 
     public int Length => _count;
-    
+
+    public ref WorldEvent this[int index] => ref _events[index];
+
     public WorldHistory(int capacity, int expand)
     {
         if (capacity < 0)
@@ -36,11 +38,5 @@ public class WorldHistory : IWorldHistory
     public void Clear()
     {
         _count = 0;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IHistoryNavigator CreateNavigator()
-    {
-        return new HistoryNavigator(_events, _count);
     }
 }

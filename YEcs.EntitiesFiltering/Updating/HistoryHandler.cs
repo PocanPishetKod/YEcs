@@ -3,7 +3,7 @@ using YEcs.Interfaces.Historicity;
 
 namespace YEcs.EntitiesFiltering.Updating;
 
-public class HistoryHandler : IHistoryHandler
+internal class HistoryHandler
 {
     private readonly IEventHandlerResolver _eventHandlerResolver;
 
@@ -13,13 +13,14 @@ public class HistoryHandler : IHistoryHandler
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Handle(IHistoryNavigator historyNavigator)
+    public void Handle(IWorldHistory worldHistory)
     {
-        do
+        var eventsCount = worldHistory.Length;
+
+        for (var i = 0; i < eventsCount; i++)
         {
-            ref var worldEvent = ref historyNavigator.GetCurrent();
-            _eventHandlerResolver.Resolve(worldEvent.Type).Handle(ref worldEvent);    
-        } 
-        while (historyNavigator.Forward());
+            ref var ev = ref worldHistory[i];
+            _eventHandlerResolver.Resolve(ev.Type).Handle(ref ev);
+        }
     }
 }

@@ -1,12 +1,37 @@
 namespace YEcs.EntitiesFiltering;
 
-public class EntityFiltersStorage : IByArchetypeEntityFiltersStorage
+public class EntityFiltersStorage : IEntityFiltersStorage
 {
     private readonly Dictionary<ArchetypeMask, EntityFilter> _entityFiltersMap;
+    private readonly Dictionary<Archetype, List<EntityFilter>> _byArchetypeMap;
 
     public EntityFiltersStorage()
     {
         _entityFiltersMap = new Dictionary<ArchetypeMask, EntityFilter>();
+        _byArchetypeMap = new Dictionary<Archetype, List<EntityFilter>>();
+    }
+
+    public IReadOnlyCollection<EntityFilter> Get(in Archetype archetype)
+    {
+        if (_byArchetypeMap.TryGetValue(archetype, out var entityFilters))
+        {
+            return entityFilters;
+        }
+        
+        entityFilters = new List<EntityFilter>();
+        _byArchetypeMap.Add(archetype, entityFilters);
+
+        foreach (var (mask, filter) in _entityFiltersMap)
+        {
+            if (!mask.IsCompatible(archetype))
+            {
+                continue;
+            }
+            
+            entityFilters.Add(filter);
+        }
+        
+        return entityFilters;
     }
 
     public void Add(ArchetypeMask key, EntityFilter value)
@@ -14,20 +39,8 @@ public class EntityFiltersStorage : IByArchetypeEntityFiltersStorage
         _entityFiltersMap.Add(key, value);
     }
 
-    public bool TryGet(ArchetypeMask key, out EntityFilter? value)
+    public bool TryGet(in ArchetypeMask mask, out EntityFilter? filter)
     {
-        return _entityFiltersMap.TryGetValue(key, out value);
-    }
-
-    public IReadOnlyList<EntityFilter> Get(in Archetype archetype)
-    {
-        var result = new List<EntityFilter>();
-        foreach (var pair in _entityFiltersMap)
-        {
-            if (pair.Key.IsCompatible(archetype))
-                result.Add(pair.Value);
-        }
-
-        return result;
+        return _entityFiltersMap.TryGetValue(mask, out filter);
     }
 }

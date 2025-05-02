@@ -1,11 +1,10 @@
-using YEcs.Interface;
 using YEcs.Interfaces.EntitiesFiltering;
 using YEcs.Interfaces.Historicity;
 using YEcs.Interfaces.Storaging;
 
 namespace YEcs;
 
-public class WorldBuilder : IWorldBuilder<Entity, Archetype>
+public class WorldBuilder : IWorldBuilder
 {
     private readonly World _world;
 
@@ -13,27 +12,29 @@ public class WorldBuilder : IWorldBuilder<Entity, Archetype>
         IEntitiesStorage entitiesStorage,
         IEntityFiltersBuilderFactory entityFiltersBuilderFactory,
         IWorldHistory worldHistory,
-        IFiltersUpdater filtersUpdater)
+        IFiltersUpdater filtersUpdater,
+        IComponentStorageFactory componentStorageFactory)
     {
         _world = new World(entitiesStorage,
             entityFiltersBuilderFactory,
             filtersUpdater,
-            worldHistory);
+            worldHistory,
+            componentStorageFactory);
     }
     
-    public IWorldBuilder<Entity, Archetype> WithUpdateSystem(IUpdateSystem system)
+    public IWorldBuilder WithUpdateSystem(IUpdateSystem system)
     {
         _world.AddUpdateSystem(system);
         return this;
     }
 
-    public IWorldBuilder<Entity, Archetype> WithInitializeSystem(IInitializationSystem system)
+    public IWorldBuilder WithInitializeSystem(IInitializationSystem system)
     {
         _world.AddInitializationSystem(system);
         return this;
     }
 
-    public IWorld<Entity, Archetype> Build()
+    public IWorld Build()
     {
         return _world;
     }

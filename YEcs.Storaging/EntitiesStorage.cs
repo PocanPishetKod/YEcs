@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using YEcs.Interfaces.Historicity;
+using YEcs.Common;
 using YEcs.Interfaces.Storaging;
 
 namespace YEcs.Storaging;
@@ -8,20 +8,17 @@ public class EntitiesStorage : IEntitiesStorage
 {
     private readonly int _expand;
 
-    private Entity[] _entities;
+    private readonly Entity[] _entities;
     private int _count;
 
-    private int[] _removedEntitiesIndices;
+    private readonly int[] _removedEntitiesIndices;
     private int _removedEntitiesCount;
-
-    private readonly IComponentStorageFactory _componentStorageFactory;
-    private readonly IWorldHistory _worldHistory;
 
     public int Count => _count;
     
     public ref Entity this[int entityIndex] => ref _entities[entityIndex];
 
-    public EntitiesStorage(int capacity, int expand, IComponentStorageFactory componentStorageFactory, IWorldHistory worldHistory)
+    public EntitiesStorage(int capacity, int expand)
     {
         if (capacity < 0)
             throw new ArgumentOutOfRangeException(nameof(capacity));
@@ -29,8 +26,6 @@ public class EntitiesStorage : IEntitiesStorage
         if (expand <= 0)
             throw new ArgumentOutOfRangeException(nameof(expand));
         
-        _componentStorageFactory = componentStorageFactory ?? throw new ArgumentNullException(nameof(componentStorageFactory));
-        _worldHistory = worldHistory ?? throw new ArgumentNullException(nameof(worldHistory));
         _expand = expand;
         _entities = new Entity[capacity];
         _count = 0;
@@ -44,7 +39,7 @@ public class EntitiesStorage : IEntitiesStorage
         if (_removedEntitiesCount == 0)
             return false;
 
-        for (int i = 0; i < _removedEntitiesCount; i++)
+        for (var i = 0; i < _removedEntitiesCount; i++)
         {
             if (_removedEntitiesIndices[i] == index)
                 return true;
@@ -63,25 +58,21 @@ public class EntitiesStorage : IEntitiesStorage
             return ref entity;
         }
 
-        if (_count == _entities.Length)
-            Array.Resize(ref _entities, _entities.Length + _expand);
+        _entities.ResizeIfNeeded(_count, _expand);
 
-        _entities[_count] = new Entity(_count, _componentStorageFactory, _worldHistory);
+        _entities[_count] = new Entity(_count);
         return ref _entities[_count++];
     }
 
-    public void Remove(ref Entity entity)
+    public void Remove(int entityIndex)
     {
 #if DEBUG
-        if (ContainsRemovedIndex(entity.Index))
-            throw new InvalidOperationException($"Entity with index {entity.Index} already removed.");
+        if (ContainsRemovedIndex(entityIndex))
+            throw new InvalidOperationException($"Entity with index {entityIndex} already removed.");
 #endif
 
-        if (_removedEntitiesCount == _removedEntitiesIndices.Length)
-            Array.Resize(ref _removedEntitiesIndices, _removedEntitiesIndices.Length + _expand);
+        _removedEntitiesIndices.ResizeIfNeeded(_removedEntitiesCount, _expand);
 
-        _removedEntitiesIndices[_removedEntitiesCount++] = entity.Index;
-
-        entity.Clear();
+        _removedEntitiesIndices[_removedEntitiesCount++] = entityIndex;
     }
 }

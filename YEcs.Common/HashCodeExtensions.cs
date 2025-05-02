@@ -2,7 +2,7 @@
 
 public static class HashCodeExtensions
 {
-    private static void AddValues<T>(this HashCode hashCode, IEnumerable<T> values)
+    private static void AddValues<T>(this ref HashCode hashCode, IEnumerable<T> values)
     {
         foreach (var componentTypeId in values)
         {

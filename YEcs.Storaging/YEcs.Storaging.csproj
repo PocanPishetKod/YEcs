@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\YEcs.Common\YEcs.Common.csproj" />
       <ProjectReference Include="..\YEcs\YEcs.csproj" />
     </ItemGroup>
 

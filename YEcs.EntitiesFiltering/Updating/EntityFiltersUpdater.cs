@@ -6,11 +6,11 @@ namespace YEcs.EntitiesFiltering.Updating;
 
 public class EntityFiltersUpdater : IFiltersUpdater
 {
-    private readonly IHistoryHandler _historyHandler;
+    private readonly HistoryHandler _historyHandler;
 
-    public EntityFiltersUpdater(IHistoryHandler historyHandler)
+    public EntityFiltersUpdater(IArchetypesStorage archetypesStorage, IEntityFiltersStorage entityFiltersStorage)
     {
-        _historyHandler = historyHandler ?? throw new ArgumentNullException(nameof(historyHandler));
+        _historyHandler = new HistoryHandler(new EventHandlerResolver(entityFiltersStorage, archetypesStorage));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -19,6 +19,6 @@ public class EntityFiltersUpdater : IFiltersUpdater
         if (worldHistory.Length == 0)
             return;
         
-        _historyHandler.Handle(worldHistory.CreateNavigator());
+        _historyHandler.Handle(worldHistory);
     }
 }

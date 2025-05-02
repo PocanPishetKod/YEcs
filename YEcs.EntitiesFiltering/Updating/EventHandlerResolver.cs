@@ -1,30 +1,30 @@
 using System.Runtime.CompilerServices;
 using YEcs.EntitiesFiltering.Updating.Handlers;
 using YEcs.Interfaces.Historicity;
-using YEcs.Interfaces.Storaging;
 
 namespace YEcs.EntitiesFiltering.Updating;
 
-public class EventHandlerResolver : IEventHandlerResolver
+internal class EventHandlerResolver : IEventHandlerResolver
 {
-    private readonly IDictionary<WorldEventType, IEventHandler> _eventHandlers;
+    private readonly IEventHandler[] _eventHandlers;
 
-    public EventHandlerResolver(IEntitiesStorage entitiesStorage, IByArchetypeEntityFiltersStorage entityFiltersStorage)
+    public EventHandlerResolver(IEntityFiltersStorage entityFiltersStorage, IArchetypesStorage archetypesStorage)
     {
-        ArgumentNullException.ThrowIfNull(entitiesStorage);
         ArgumentNullException.ThrowIfNull(entityFiltersStorage);
+        ArgumentNullException.ThrowIfNull(archetypesStorage);
 
-        _eventHandlers = new Dictionary<WorldEventType, IEventHandler>()
-        {
-            { WorldEventType.EntityCreated, new EntityCreatedEventHandler(entityFiltersStorage) },
-            { WorldEventType.EntityDestroyed, new EntityDestroyedEventHandler(entityFiltersStorage) },
-            { WorldEventType.EntityArchetypeChanged, new EntityArchetypeChangedEventHandler(entityFiltersStorage)}
-        };
+        _eventHandlers = 
+        [
+            new EntityCreatedHandler(archetypesStorage),
+            new EntityDestroyedHandler(entityFiltersStorage, archetypesStorage),
+            new ComponentCreatedHandler(entityFiltersStorage, archetypesStorage),
+            new ComponentRemovedHandler(entityFiltersStorage, archetypesStorage)
+        ];
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEventHandler Resolve(WorldEventType worldEventType)
     {
-        return _eventHandlers[worldEventType];
+        return _eventHandlers[(int)worldEventType];
     }
 }

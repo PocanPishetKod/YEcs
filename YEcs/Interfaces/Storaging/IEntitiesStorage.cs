@@ -6,7 +6,7 @@ public interface IEntitiesStorage
     
     int Count { get; }
     
-    void Remove(ref Entity entity);
+    void Remove(int entityIndex);
 
     ref Entity Create();
 }

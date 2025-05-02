@@ -1,4 +1,4 @@
-namespace YEcs.Interface;
+namespace YEcs;
 
 public interface IInitializationSystem
 {

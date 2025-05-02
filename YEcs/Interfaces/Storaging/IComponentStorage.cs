@@ -1,8 +1,6 @@
-using YEcs.Interface;
-
 namespace YEcs.Interfaces.Storaging;
 
-public ref struct ComponentRef<TComponent> where TComponent : struct, IReusable
+public ref struct ComponentRef<TComponent> where TComponent : struct
 {
     public readonly ref TComponent Component;
     public readonly int Key;
@@ -14,15 +12,15 @@ public ref struct ComponentRef<TComponent> where TComponent : struct, IReusable
     }
 }
 
-public interface IComponentStorage
+public interface IComponentStorage<TComponent> where TComponent : struct
 {
-    void Remove(int key);
-}
+    ref TComponent this[int index] { get; }
 
-public interface IComponentStorage<TComponent> : IComponentStorage
-    where TComponent : struct, IReusable
-{
-    ref TComponent this[int key] { get; }
-
-    ComponentRef<TComponent> Create();
+    ref TComponent Get(int entityIndex);
+    
+    ComponentRef<TComponent> Create(int entityIndex);
+    
+    void Remove(int entityIndex);
+    
+    bool HasComponent(int entityIndex);
 }

@@ -8,20 +8,21 @@ namespace Tests.Integration;
 
 public static class Common
 {
-    public static WorldBuilder CreateWorldBuilder()
+    public static WorldBuilder CreateWorldBuilder(int capacity = 100, int expand = 25)
     {
-        var worldHistory = new WorldHistory(100, 25);
-        var entitiesStorage = new EntitiesStorage(10, 10, new ComponentStorageFactory(10, 10), worldHistory);
+        var worldHistory = new WorldHistory(capacity, expand);
+        var componentTypeIdProvider = new ComponentTypeIdProvider();
+        var componentStorageFactory = new ComponentStorageFactory(capacity, expand, worldHistory, componentTypeIdProvider);
+        var entitiesStorage = new EntitiesStorage(capacity, expand);
         var entityFiltersStorage = new EntityFiltersStorage();
-        var filtersUpdater = new EntityFiltersUpdater(
-            new HistoryHandler(
-                new EventHandlerResolver(entitiesStorage,
-                    new CachedByByArchetypeEntityFiltersStorage(entityFiltersStorage))));
+        var archetypesStorage = new ArchetypesStorage(capacity);
+        var filtersUpdater = new EntityFiltersUpdater(archetypesStorage, entityFiltersStorage);
             
         return new WorldBuilder(
             entitiesStorage,
-            new EntityFilterBuilderFactory(entitiesStorage, entityFiltersStorage),
+            new EntityFilterBuilderFactory(entitiesStorage, entityFiltersStorage, archetypesStorage),
             worldHistory,
-            filtersUpdater);
+            filtersUpdater,
+            componentStorageFactory);
     }
 }

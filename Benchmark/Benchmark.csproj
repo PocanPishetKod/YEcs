@@ -8,15 +8,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Tests\Tests.csproj" />
       <ProjectReference Include="..\YEcs.EntitiesFiltering\YEcs.EntitiesFiltering.csproj" />
       <ProjectReference Include="..\YEcs.Historicity\YEcs.Historicity.csproj" />
-      <ProjectReference Include="..\YEcs.Interface\YEcs.Interface.csproj" />
       <ProjectReference Include="..\YEcs.Storaging\YEcs.Storaging.csproj" />
       <ProjectReference Include="..\YEcs\YEcs.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+      <PackageReference Include="Leopotam.EcsLite" Version="1.0.1" />
     </ItemGroup>
 
 </Project>

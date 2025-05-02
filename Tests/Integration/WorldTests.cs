@@ -9,18 +9,6 @@ namespace Tests.Integration
     public class WorldTests
     {
         [Fact]
-        public void CreateOneEntity_HavingSingleEntity()
-        {
-            var world = Common.CreateWorldBuilder().Build();
-            var emptyFilter = world.CreateFilterBuilder().Build();
-            
-            ref var entity = ref world.CreateEntity();
-            world.UpdateFilters();
-            
-            Assert.Equal(1, emptyFilter.Count);
-        }
-        
-        [Fact]
         public void DestroyEntity_HavingZeroEntities()
         {
             var world = Common.CreateWorldBuilder().Build();

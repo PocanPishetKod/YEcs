@@ -1,37 +1,44 @@
 ﻿using System.Runtime.CompilerServices;
-using YEcs.Interface;
+using YEcs.Interfaces.EntitiesFiltering;
 using YEcs.Interfaces.Storaging;
 
 namespace YEcs.EntitiesFiltering;
 
-public class EntityFilterBuilder : IEntityFilterBuilder<Entity, Archetype>
+public class EntityFilterBuilder : IEntityFilterBuilder
 {
-    private readonly List<Type> _withTypes;
-    private readonly List<Type> _exceptTypes;
+    private readonly HashSet<ComponentTypeId> _withTypes;
+    private readonly HashSet<ComponentTypeId> _exceptTypes;
     private readonly IEntitiesStorage _entitiesStorage;
     private readonly IEntityFiltersStorage _entityFiltersStorage;
+    private readonly IComponentTypeIdProvider _componentTypeProvider;
+    private readonly IArchetypesStorage _archetypesStorage;
 
-    internal EntityFilterBuilder(IEntityFiltersStorage entityFiltersStorage, IEntitiesStorage entitiesStorage)
+    internal EntityFilterBuilder(IEntityFiltersStorage entityFiltersStorage,
+        IEntitiesStorage entitiesStorage,
+        IComponentTypeIdProvider componentTypeProvider,
+        IArchetypesStorage archetypesStorage)
     {
         _entityFiltersStorage = entityFiltersStorage;
         _entitiesStorage = entitiesStorage;
-        _withTypes = new List<Type>();
-        _exceptTypes = new List<Type>();
+        _componentTypeProvider = componentTypeProvider;
+        _archetypesStorage = archetypesStorage;
+        _withTypes = new HashSet<ComponentTypeId>(2);
+        _exceptTypes = new HashSet<ComponentTypeId>(1);
     }
 
-    public IEntityFilterBuilder<Entity, Archetype> With<TComponent>() where TComponent : struct, IReusable
+    public IEntityFilterBuilder With<TComponent>() where TComponent : struct
     {
-        _withTypes.Add(typeof(TComponent));
+        _withTypes.Add(_componentTypeProvider.Get<TComponent>());
         return this;
     }
 
-    public IEntityFilterBuilder<Entity, Archetype> Except<TComponent>() where TComponent : struct, IReusable
+    public IEntityFilterBuilder Except<TComponent>() where TComponent : struct
     {
-        _exceptTypes.Add(typeof(TComponent));
+        _exceptTypes.Add(_componentTypeProvider.Get<TComponent>());
         return this;
     }
 
-    public IEntityFilter<Entity, Archetype> Build()
+    public IReadOnlyEntityFilter Build()
     {
         var mask = new ArchetypeMask(_withTypes, _exceptTypes);
 
@@ -51,7 +58,7 @@ public class EntityFilterBuilder : IEntityFilterBuilder<Entity, Archetype>
         for (var i = 0; i < _entitiesStorage.Count; i++)
         {
             ref var entity = ref _entitiesStorage[i];
-            if (!filter.IsCompatible(ref entity))
+            if (!filter.IsCompatible(_archetypesStorage.Get(entity.Index)))
                 continue;
 
             filter.AddEntity(entity.Index);

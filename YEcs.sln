@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YEcs", "YEcs\YEcs.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{8D603F72-5B0F-4DDC-828F-D3D7A523BD6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YEcs.Interface", "YEcs.Interface\YEcs.Interface.csproj", "{6E054352-2E68-4D30-B995-B1FD97496332}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YEcs.Storaging", "YEcs.Storaging\YEcs.Storaging.csproj", "{CF023D67-9559-434D-A323-1CBB229708A0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YEcs.EntitiesFiltering", "YEcs.EntitiesFiltering\YEcs.EntitiesFiltering.csproj", "{063D088F-56AE-453B-A6E0-4368523C69DC}"
@@ -33,10 +31,6 @@ Global
 		{8D603F72-5B0F-4DDC-828F-D3D7A523BD6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D603F72-5B0F-4DDC-828F-D3D7A523BD6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D603F72-5B0F-4DDC-828F-D3D7A523BD6D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E054352-2E68-4D30-B995-B1FD97496332}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E054352-2E68-4D30-B995-B1FD97496332}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E054352-2E68-4D30-B995-B1FD97496332}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E054352-2E68-4D30-B995-B1FD97496332}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CF023D67-9559-434D-A323-1CBB229708A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CF023D67-9559-434D-A323-1CBB229708A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF023D67-9559-434D-A323-1CBB229708A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
